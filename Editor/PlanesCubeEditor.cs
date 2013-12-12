@@ -13,5 +13,9 @@ public class PlanesCubeEditor : Editor {
 		if(GUILayout.Button("Setup planes")) {
 			script.SetUpPlanes();
 		}
+
+		if(GUILayout.Button("Highlight")) {
+			script.ToggleHighlight();
+		}
 	}
 }

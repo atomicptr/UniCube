@@ -10,6 +10,8 @@ public class PlanesCube : MonoBehaviour {
 	public Material front;
 	public Material back;
 
+	private bool isHighlighted = false;
+
 	public void SetUpPlanes() {
 		for(int i = 0; i < this.transform.childCount; i++) {
 			Transform child = this.transform.GetChild(i);
@@ -46,5 +48,33 @@ public class PlanesCube : MonoBehaviour {
 
 	private void setTexture(Transform t, Material m) {
 		t.renderer.material = m;
+	}
+
+	public void SetHighlighted(bool highlighted) {
+		if(highlighted) {
+			Shader shader = Shader.Find("Self-Illumin/Outlined Diffuse");
+
+			applyShader(shader);
+		} else {
+			Shader shader = Shader.Find("Diffuse");
+
+			applyShader(shader);
+		}
+
+		this.isHighlighted = highlighted;
+	}
+
+	public void ToggleHighlight() {
+		isHighlighted = !isHighlighted;
+
+		this.SetHighlighted(isHighlighted);
+	}
+
+	private void applyShader(Shader shader) {
+		for(int i = 0; i < this.transform.childCount; i++) {
+			Transform child = this.transform.GetChild(i);
+
+			child.renderer.material.shader = shader;
+		}
 	}
 }
