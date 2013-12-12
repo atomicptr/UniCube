@@ -10,6 +10,18 @@ public class PlanesCube : MonoBehaviour {
 	public Material front;
 	public Material back;
 
+	public int x;
+	public int y;
+	public int z;
+
+	public string Name {
+		get {
+			return "cube_" + this.x + "x" + this.y + "x" + this.z;
+		}
+	}
+
+	public static PlanesCube SelectedCube = null;
+
 	private bool isHighlighted = false;
 
 	public void SetUpPlanes() {
@@ -55,6 +67,8 @@ public class PlanesCube : MonoBehaviour {
 			Shader shader = Shader.Find("Self-Illumin/Outlined Diffuse");
 
 			applyShader(shader);
+
+			PlanesCube.SelectedCube = this;
 		} else {
 			Shader shader = Shader.Find("Diffuse");
 

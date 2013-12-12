@@ -10,12 +10,10 @@ public class PlanesCubeEditor : Editor {
 
 		PlanesCube script = (PlanesCube)target;
 
+		EditorGUILayout.LabelField("Name", script.Name);
+
 		if(GUILayout.Button("Setup planes")) {
 			script.SetUpPlanes();
-		}
-
-		if(GUILayout.Button("Highlight")) {
-			script.ToggleHighlight();
 		}
 	}
 }
