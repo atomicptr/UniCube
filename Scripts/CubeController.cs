@@ -21,8 +21,56 @@ public class CubeController : MonoBehaviour {
 		}
 	};
 
-	void Start () {
-		selectLayer(1);
+	private GameObject tempParent;
+
+	void Start() {
+		rotateRowToRight(0);
+	}
+	
+	public void rotateRowToRight(int y) {
+		string[,] row = this.getRowIdentifier(y);
+
+		Transform[,] cubeTransforms = new Transform[3, 3];
+
+		string[,] tempRow = this.getRowIdentifier(y);
+
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+
+		// get transforms
+		for(int x = 0; x < 3; x++) {
+			for(int z = 0; z < 3; z++) {
+				cubeTransforms[x, z] = this.getCubeTransform(x, y, z);
+
+				cubeTransforms[x, z].parent = tempParent.transform;
+			}
+		}
+
+		// rotate sides
+		row[0, 1] = tempRow[1, 0];
+		row[1, 2] = tempRow[0, 1];
+		row[2, 1] = tempRow[1, 2];
+		row[1, 0] = tempRow[2, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[2, 0];
+		row[0, 2] = tempRow[0, 0];
+		row[2, 2] = tempRow[0, 2];
+		row[2, 0] = tempRow[2, 2];
+
+		// rotate real cubes
+
+		// find center
+		Vector3 center = this.findChild("top", tempParent.transform).renderer.bounds.center;
+
+		tempParent.transform.RotateAround(center, Vector3.up, 90f);
+
+		// put cubes back to good old object
+		for(int x = 0; x < 3; x++) {
+			for(int z = 0; z < 3; z++) {
+				cubeTransforms[x, z].parent = this.transform;
+			}
+		}
 	}
 
 	public void selectRow(int y) {
@@ -82,22 +130,55 @@ public class CubeController : MonoBehaviour {
 	}
 
 	private void setCubeAsSelected(int x, int y, int z, bool selected) {
-		Transform cubeTransform = this.findChild(cubes[x, y, z]);
-		
-		PlanesCube cube = (PlanesCube)cubeTransform.GetComponent("PlanesCube");
+		PlanesCube cube = getCube(x, y, z);
 		
 		cube.SetHighlighted(selected);
 	}
 
-	private Transform findChild(string name) {
-		for(int i = 0; i < this.transform.childCount; i++) {
-			Transform child = this.transform.GetChild(i);
+	private Transform getCubeTransform(int x, int y, int z) {
+		return this.findChild(cubes[x, y, z]);
+	}
 
+	private PlanesCube getCube(int x, int y, int z) {
+		Transform cubeTransform = getCubeTransform(x, y, z);
+		
+		return (PlanesCube)cubeTransform.GetComponent("PlanesCube");
+	}
+
+	private string[,] getRowIdentifier(int y) {
+		string[,] row = new string[3, 3];
+
+		for(int x = 0; x < 3; x++) {
+			for(int z = 0; z < 3; z++) {
+				row[x, z] = cubes[x, y, z];
+			}
+		}
+
+		return row;
+	}
+
+	private void setRowIdentifier(int y, string[,] row) {
+		for(int x = 0; x < 3; x++) {
+			for(int z = 0; z < 3; z++) {
+				cubes[x, y, z] = row[x, z];
+			}
+		}
+	}
+
+	// TODO: use hashmap instead
+	private Transform findChild(string name) {
+		return this.findChild(name, this.transform);
+	}
+
+	private Transform findChild(string name, Transform from) {
+		for(int i = 0; i < from.childCount; i++) {
+			Transform child = from.GetChild(i);
+			
 			if(child.name == name) {
 				return child;
 			}
 		}
-
+		
 		return null;
 	}
 }
