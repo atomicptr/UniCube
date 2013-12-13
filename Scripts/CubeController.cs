@@ -3,38 +3,90 @@ using System.Collections;
 
 public class CubeController : MonoBehaviour {
 
-	private int selectX = 0;
-	private int selectY = 0;
-	private int selectZ = 0;
+	private string[,,] cubes = new string[,,] {
+		{
+			{"cube_0x0x0", "cube_0x0x1", "cube_0x0x2"},
+			{"cube_0x1x0", "cube_0x1x1", "cube_0x1x2"},
+			{"cube_0x2x0", "cube_0x2x1", "cube_0x2x2"}
+		},
+		{
+			{"cube_1x0x0", "cube_1x0x1", "cube_1x0x2"},
+			{"cube_1x1x0", "cube_1x1x1", "cube_1x1x2"},
+			{"cube_1x2x0", "cube_1x2x1", "cube_1x2x2"}
+		},
+		{
+			{"cube_2x0x0", "cube_2x0x1", "cube_2x0x2"},
+			{"cube_2x1x0", "cube_2x1x1", "cube_2x1x2"},
+			{"cube_2x2x0", "cube_2x2x1", "cube_2x2x2"}
+		}
+	};
 
 	void Start () {
-		Transform firstCube = this.findChild("cube_0x0x0");
-
-		PlanesCube cube = (PlanesCube)firstCube.GetComponent("PlanesCube");
-
-		cube.SetHighlighted(true);
+		selectLayer(1);
 	}
 
-	void Update () {
-		if(Input.GetKeyUp("d")) {
-			Transform t = null;
+	public void selectRow(int y) {
+		setRowAsSelected(y, true);
+	}
 
-			if(selectX + 1 > 2) {
-				if(selectZ + 1 > 2) {
-					selectX = 0;
-				} else {
-					t = findChild("cube_2x0x" + ++selectZ);
-				}
-			} else {
-				t = findChild("cube_" + ++selectX + "x0x0");
+	public void selectColumn(int x) {
+		setColumnAsSelected(x, true);
+	}
+
+	public void selectLayer(int z) {
+		setLayerAsSelected(z, true);
+	}
+
+	public void deselectRow(int y) {
+		setRowAsSelected(y, false);
+	}
+
+	public void deselectColumn(int x) {
+		setColumnAsSelected(x, false);
+	}
+
+	public void deselectLayer(int z) {
+		setLayerAsSelected(z, false);
+	}
+
+	private void setRowAsSelected(int y, bool selected) {
+		for(int x = 0; x < 3; x++) {
+			for(int z = 0; z < 3; z++) {
+				setCubeAsSelected(x, y, z, selected);
 			}
-
-			PlanesCube.SelectedCube.SetHighlighted(false);
-
-			PlanesCube cube = (PlanesCube)t.GetComponent("PlanesCube");
-
-			cube.SetHighlighted(true);
 		}
+	}
+
+	private void setColumnAsSelected(int x, bool selected) {
+		for(int y = 0; y < 3; y++) {
+			for(int z = 0; z < 3; z++) {
+				setCubeAsSelected(x, y, z, selected);
+			}
+		}
+	}
+
+	private void setLayerAsSelected(int z, bool selected) {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				setCubeAsSelected(x, y, z, selected);
+			}
+		}
+	}
+
+	private void selectCube(int x, int y, int z) {
+		setCubeAsSelected(x, y, z, true);
+	}
+
+	private void deselectCube(int x, int y, int z) {
+		setCubeAsSelected(x, y, z, false);
+	}
+
+	private void setCubeAsSelected(int x, int y, int z, bool selected) {
+		Transform cubeTransform = this.findChild(cubes[x, y, z]);
+		
+		PlanesCube cube = (PlanesCube)cubeTransform.GetComponent("PlanesCube");
+		
+		cube.SetHighlighted(selected);
 	}
 
 	private Transform findChild(string name) {
