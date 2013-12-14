@@ -19,7 +19,7 @@ public class PlanesCube : MonoBehaviour {
 			setPlane(child);
 		}
 	}
-
+	
 	private void setPlane(Transform t) {
 		switch (t.name) {
 			case "top":

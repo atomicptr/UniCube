@@ -24,10 +24,23 @@ public class CubeController : MonoBehaviour {
 	private GameObject tempParent;
 
 	void Start() {
-		rotateRowToRight(0);
+		//rotateRowToRight(0);
+		//rotateRowToLeft(2);
+
+		//rotateColumnUp(0);
+		//rotateColumnDown(2);
+
+		rotateLayerToLeft(0);
+		rotateLayerToRight(2);
 	}
 	
+	// TODO: refactor code duplication
 	public void rotateRowToRight(int y) {
+		// TODO enable rotation with center axis
+		if(y == 1) {
+			return;
+		}
+
 		string[,] row = this.getRowIdentifier(y);
 
 		Transform[,] cubeTransforms = new Transform[3, 3];
@@ -66,9 +79,271 @@ public class CubeController : MonoBehaviour {
 		tempParent.transform.RotateAround(center, Vector3.up, 90f);
 
 		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+
+		// apply changes to data structure
+		this.setRowIdentifier(y, row);
+	}
+
+	// TODO: refactor code duplication
+	public void rotateRowToLeft(int y) {
+		// TODO enable rotation with center axis
+		if(y == 1) {
+			return;
+		}
+
+		string[,] row = this.getRowIdentifier(y);
+		
+		Transform[,] cubeTransforms = new Transform[3, 3];
+		
+		string[,] tempRow = this.getRowIdentifier(y);
+		
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+		
+		// get transforms
 		for(int x = 0; x < 3; x++) {
 			for(int z = 0; z < 3; z++) {
-				cubeTransforms[x, z].parent = this.transform;
+				cubeTransforms[x, z] = this.getCubeTransform(x, y, z);
+				
+				cubeTransforms[x, z].parent = tempParent.transform;
+			}
+		}
+		
+		// rotate sides
+		row[0, 1] = tempRow[1, 2];
+		row[1, 2] = tempRow[2, 1];
+		row[2, 1] = tempRow[1, 0];
+		row[1, 0] = tempRow[0, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[0, 2];
+		row[0, 2] = tempRow[2, 2];
+		row[2, 2] = tempRow[2, 0];
+		row[2, 0] = tempRow[0, 0];
+		
+		// rotate real cubes
+		
+		// find center
+		Vector3 center = this.findChild("top", tempParent.transform).renderer.bounds.center;
+		
+		tempParent.transform.RotateAround(center, Vector3.up, -90f);
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+
+		// apply changes to data structure
+		this.setRowIdentifier(y, row);
+	}
+
+	// TODO: refactor code duplication
+	public void rotateColumnUp(int x) {
+		// TODO enable rotation with center axis
+		if(x == 1) {
+			return;
+		}
+
+		string[,] row = this.getColumnIdentifier(x);
+		
+		Transform[,] cubeTransforms = new Transform[3, 3];
+		
+		string[,] tempRow = this.getColumnIdentifier(x);
+		
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+		
+		// get transforms
+		for(int y = 0; y < 3; y++) {
+			for(int z = 0; z < 3; z++) {
+				cubeTransforms[y, z] = this.getCubeTransform(x, y, z);
+
+				cubeTransforms[y, z].parent = tempParent.transform;
+			}
+		}
+		
+		// rotate sides
+		row[0, 1] = tempRow[1, 2];
+		row[1, 2] = tempRow[2, 1];
+		row[2, 1] = tempRow[1, 0];
+		row[1, 0] = tempRow[0, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[0, 2];
+		row[0, 2] = tempRow[2, 2];
+		row[2, 2] = tempRow[2, 0];
+		row[2, 0] = tempRow[0, 0];
+		
+		// rotate real cubes
+		
+		// find center
+		Vector3 center = this.findChild("left", tempParent.transform).renderer.bounds.center;
+
+		tempParent.transform.RotateAround(center, Vector3.left, -90f);
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+
+		// apply changes to data structure
+		this.setColumnIdentifier(x, row);
+	}
+
+	// TODO: refactor code duplication
+	public void rotateColumnDown(int x) {
+		// TODO enable rotation with center axis
+		if(x == 1) {
+			return;
+		}
+		
+		string[,] row = this.getColumnIdentifier(x);
+		
+		Transform[,] cubeTransforms = new Transform[3, 3];
+		
+		string[,] tempRow = this.getColumnIdentifier(x);
+		
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+		
+		// get transforms
+		for(int y = 0; y < 3; y++) {
+			for(int z = 0; z < 3; z++) {
+				cubeTransforms[y, z] = this.getCubeTransform(x, y, z);
+				
+				cubeTransforms[y, z].parent = tempParent.transform;
+			}
+		}
+		
+		// rotate sides
+		row[0, 1] = tempRow[1, 0];
+		row[1, 2] = tempRow[0, 1];
+		row[2, 1] = tempRow[1, 2];
+		row[1, 0] = tempRow[2, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[2, 0];
+		row[0, 2] = tempRow[0, 0];
+		row[2, 2] = tempRow[0, 2];
+		row[2, 0] = tempRow[2, 2];
+		
+		// rotate real cubes
+		
+		// find center
+		Vector3 center = this.findChild("left", tempParent.transform).renderer.bounds.center;
+		
+		tempParent.transform.RotateAround(center, Vector3.left, -90f);
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+		
+		// apply changes to data structure
+		this.setColumnIdentifier(x, row);
+	}
+
+	// TODO: refactor code duplication
+	public void rotateLayerToLeft(int z) {
+		// TODO enable rotation with center axis
+		if(z == 1) {
+			return;
+		}
+		
+		string[,] row = this.getLayerIdentifier(z);
+		
+		Transform[,] cubeTransforms = new Transform[3, 3];
+		
+		string[,] tempRow = this.getLayerIdentifier(z);
+		
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+		
+		// get transforms
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				cubeTransforms[x, y] = this.getCubeTransform(x, y, z);
+				
+				cubeTransforms[x, y].parent = tempParent.transform;
+			}
+		}
+		
+		// rotate sides
+		row[0, 1] = tempRow[1, 2];
+		row[1, 2] = tempRow[2, 1];
+		row[2, 1] = tempRow[1, 0];
+		row[1, 0] = tempRow[0, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[0, 2];
+		row[0, 2] = tempRow[2, 2];
+		row[2, 2] = tempRow[2, 0];
+		row[2, 0] = tempRow[0, 0];
+		
+		// rotate real cubes
+		
+		// find center
+		Vector3 center = this.findChild("front", tempParent.transform).renderer.bounds.center;
+		
+		tempParent.transform.RotateAround(center, Vector3.forward, -90f);
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+		
+		// apply changes to data structure
+		this.setLayerIdentifier(z, row);
+	}
+
+	// TODO: refactor code duplication
+	public void rotateLayerToRight(int z) {
+		// TODO enable rotation with center axis
+		if(z == 1) {
+			return;
+		}
+		
+		string[,] row = this.getLayerIdentifier(z);
+		
+		Transform[,] cubeTransforms = new Transform[3, 3];
+		
+		string[,] tempRow = this.getLayerIdentifier(z);
+		
+		// set temp parent to center object
+		tempParent = this.findChild(row[1, 1]).gameObject;
+		
+		// get transforms
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				cubeTransforms[x, y] = this.getCubeTransform(x, y, z);
+				
+				cubeTransforms[x, y].parent = tempParent.transform;
+			}
+		}
+		
+		// rotate sides
+		row[0, 1] = tempRow[1, 0];
+		row[1, 2] = tempRow[0, 1];
+		row[2, 1] = tempRow[1, 2];
+		row[1, 0] = tempRow[2, 1];
+		
+		// rotate diagonals
+		row[0, 0] = tempRow[2, 0];
+		row[0, 2] = tempRow[0, 0];
+		row[2, 2] = tempRow[0, 2];
+		row[2, 0] = tempRow[2, 2];
+		
+		// rotate real cubes
+		
+		// find center
+		Vector3 center = this.findChild("front", tempParent.transform).renderer.bounds.center;
+		
+		tempParent.transform.RotateAround(center, Vector3.forward, 90f);
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+		
+		// apply changes to data structure
+		this.setLayerIdentifier(z, row);
+	}
+
+	private void setCubeTransformParent(Transform[,] transforms, Transform parent) {
+		for(int i = 0; i < 3; i++) {
+			for(int j = 0; j < 3; j++) {
+				transforms[i, j].parent = parent;
 			}
 		}
 	}
@@ -161,6 +436,46 @@ public class CubeController : MonoBehaviour {
 		for(int x = 0; x < 3; x++) {
 			for(int z = 0; z < 3; z++) {
 				cubes[x, y, z] = row[x, z];
+			}
+		}
+	}
+
+	private string[,] getColumnIdentifier(int x) {
+		string[,] row = new string[3, 3];
+		
+		for(int y = 0; y < 3; y++) {
+			for(int z = 0; z < 3; z++) {
+				row[y, z] = cubes[x, y, z];
+			}
+		}
+		
+		return row;
+	}
+	
+	private void setColumnIdentifier(int x, string[,] row) {
+		for(int y = 0; y < 3; y++) {
+			for(int z = 0; z < 3; z++) {
+				cubes[x, y, z] = row[y, z];
+			}
+		}
+	}
+
+	private string[,] getLayerIdentifier(int z) {
+		string[,] row = new string[3, 3];
+		
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				row[x, y] = cubes[x, y, z];
+			}
+		}
+		
+		return row;
+	}
+	
+	private void setLayerIdentifier(int z, string[,] row) {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				cubes[x, y, z] = row[x, y];
 			}
 		}
 	}
