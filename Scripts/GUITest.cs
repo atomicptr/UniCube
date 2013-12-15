@@ -16,6 +16,10 @@ public class GUITest : MonoBehaviour {
 	}
 
 	void OnGUI() {
+		if(controller.IsSolved) {
+			GUI.Label(new Rect(Screen.width/2 - 50, 20, 100, 25), "Cube is solved!");
+		}
+
 		// actions box
 		GUI.Box(new Rect(10,10,200,100), "Actions.");
 

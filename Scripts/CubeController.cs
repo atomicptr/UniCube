@@ -21,7 +21,41 @@ public class CubeController : MonoBehaviour {
 		}
 	};
 
+	private string[,,] solvedCube = new string[,,] {
+		{
+			{"cube_0x0x0", "cube_0x0x1", "cube_0x0x2"},
+			{"cube_0x1x0", "cube_0x1x1", "cube_0x1x2"},
+			{"cube_0x2x0", "cube_0x2x1", "cube_0x2x2"}
+		},
+		{
+			{"cube_1x0x0", "cube_1x0x1", "cube_1x0x2"},
+			{"cube_1x1x0", "cube_1x1x1", "cube_1x1x2"},
+			{"cube_1x2x0", "cube_1x2x1", "cube_1x2x2"}
+		},
+		{
+			{"cube_2x0x0", "cube_2x0x1", "cube_2x0x2"},
+			{"cube_2x1x0", "cube_2x1x1", "cube_2x1x2"},
+			{"cube_2x2x0", "cube_2x2x1", "cube_2x2x2"}
+		}
+	};
+
 	private GameObject tempParent;
+
+	public bool IsSolved {
+		get {
+			for(int x = 0; x < 3; x++) {
+				for(int y = 0; y < 3; y++) {
+					for(int z = 0; z < 3; z++) {
+						if(cubes[x, y, z] != solvedCube[x, y, z]) {
+							return false;
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+	}
 
 	void Start() {
 		//rotateRowToRight(0);
@@ -32,8 +66,43 @@ public class CubeController : MonoBehaviour {
 
 		//rotateLayerToLeft(0);
 		//rotateLayerToRight(2);
+
+		Randomize(42);
 	}
-	
+
+	public void Randomize(int n) {
+		for(int i = 0; i < n; i++) {
+			this.doRandomStep();
+		}
+	}
+
+	private void doRandomStep() {
+		int rnd = Random.Range(0, 6);
+
+		int element = Random.Range(0, 100) > 50 ? 0 : 2;
+
+		switch(rnd) {
+		case 0:
+			rotateRowToRight(element);
+			break;
+		case 1:
+			rotateColumnUp(element);
+			break;
+		case 2:
+			rotateLayerToLeft(element);
+			break;
+		case 3:
+			rotateRowToLeft(element);
+			break;
+		case 4:
+			rotateColumnDown(element);
+			break;
+		case 5:
+			rotateLayerToRight(element);
+			break;
+		}
+	}
+
 	// TODO: refactor code duplication
 	public void rotateRowToRight(int y) {
 		// TODO enable rotation with center axis
