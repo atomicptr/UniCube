@@ -30,8 +30,8 @@ public class CubeController : MonoBehaviour {
 		//rotateColumnUp(0);
 		//rotateColumnDown(2);
 
-		rotateLayerToLeft(0);
-		rotateLayerToRight(2);
+		//rotateLayerToLeft(0);
+		//rotateLayerToRight(2);
 	}
 	
 	// TODO: refactor code duplication
