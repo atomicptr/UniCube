@@ -58,9 +58,25 @@ public class CubeController : MonoBehaviour {
 	}
 
 	void Start() {
-		// TODO: fix this bug (column up 0 and layer left 0)
-
 		//Randomize(10);
+	}
+
+	public void PrintCubeDataStructure() {
+		for (int x = 0; x < 3; x++) {
+			print("{");
+
+			for(int y = 0; y < 3; y++) {
+				print("(");
+
+				for(int z = 0; z < 3; z++) {
+					print("Position: x: " + x + "y: " + y + "z: " + z + ", " + cubes[x, y, z]);
+				}
+
+				print(")");
+			}
+
+			print("}");
+		}
 	}
 
 	public void Randomize(int n) {
@@ -105,19 +121,19 @@ public class CubeController : MonoBehaviour {
 	}
 
 	public void rotateColumnUp(int x) {
-		this.rotate(this.getColumnIdentifier(x), "x", x, false);
-	}
-
-	public void rotateColumnDown(int x) {
 		this.rotate(this.getColumnIdentifier(x), "x", x, true);
 	}
 
+	public void rotateColumnDown(int x) {
+		this.rotate(this.getColumnIdentifier(x), "x", x, false);
+	}
+
 	public void rotateLayerToLeft(int z) {
-		this.rotate(this.getLayerIdentifier(z), "z", z, false);
+		this.rotate(this.getLayerIdentifier(z), "z", z, true);
 	}
 
 	public void rotateLayerToRight(int z) {
-		this.rotate(this.getLayerIdentifier(z), "z", z, true);
+		this.rotate(this.getLayerIdentifier(z), "z", z, false);
 	}
 
 	private void rotate(string[,] rowIdentifier, string axis, int axisValue, bool rotatePositive) {
@@ -176,25 +192,33 @@ public class CubeController : MonoBehaviour {
 		// rotate real cubes
 		string face = "???";
 		Vector3 rotationVector = Vector3.zero;
-		
+
+		float rotationAngle = 0f;
+
 		if (axis == "x") {
 			face = "left";
 			
 			rotationVector = Vector3.left;
+
+			rotationAngle = rotatePositive ? -90f : 90f;
 		} else if (axis == "y") {
 			face = "top";
 			
 			rotationVector = Vector3.up;
+
+			rotationAngle = rotatePositive ? 90f : -90f;
 		} else if (axis == "z") {
 			face = "front";
 			
 			rotationVector = Vector3.back;
+
+			rotationAngle = rotatePositive ? -90f : 90f;
 		}
 		
 		// find center
 		Vector3 center = this.findChild(face, tempParent.transform).renderer.bounds.center;
 		
-		tempParent.transform.RotateAround(center, rotationVector, rotatePositive ? 90f : -90f);
+		tempParent.transform.RotateAround(center, rotationVector, rotationAngle);
 		
 		// put cubes back to good old object
 		this.setCubeTransformParent(cubeTransforms, this.transform);

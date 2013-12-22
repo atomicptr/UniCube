@@ -35,11 +35,11 @@ public class GUITest : MonoBehaviour {
 		}
 
 		// column controls
-		if(column != -1 && GUI.Button(new Rect(20,40,180,20), "Column ^^")) {
+		if(column != -1 && GUI.Button(new Rect(20,40,180,20), "Column ^")) {
 			controller.rotateColumnUp(column);
 		}
 
-		if(column != -1 && GUI.Button(new Rect(20,70,180,20), "Column vv")) {
+		if(column != -1 && GUI.Button(new Rect(20,70,180,20), "Column v")) {
 			controller.rotateColumnDown(column);
 		}
 
@@ -50,6 +50,12 @@ public class GUITest : MonoBehaviour {
 
 		if(layer != -1 && GUI.Button(new Rect(20,70,180,20), "Layer <<")) {
 			controller.rotateLayerToLeft(layer);
+		}
+
+		if((Application.platform == RuntimePlatform.WindowsEditor ||
+		   Application.platform == RuntimePlatform.OSXEditor) &&
+		   GUI.Button (new Rect (10, Screen.height - 50, 100, 25), "Print Datastructure")) {
+			controller.PrintCubeDataStructure();
 		}
 
 		// controls box
