@@ -52,7 +52,7 @@ public class PlanesCube : MonoBehaviour {
 
 	public void SetHighlighted(bool highlighted) {
 		if(highlighted) {
-			Shader shader = Shader.Find("Self-Illumin/Parallax Diffuse");
+			Shader shader = Shader.Find("Highlight_Cube");
 
 			applyShader(shader);
 		} else {
@@ -71,6 +71,10 @@ public class PlanesCube : MonoBehaviour {
 	}
 
 	private void applyShader(Shader shader) {
+		if (shader == null) {
+			Debug.LogError("Invalid shader!");
+		}
+
 		for(int i = 0; i < this.transform.childCount; i++) {
 			Transform child = this.transform.GetChild(i);
 
