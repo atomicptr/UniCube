@@ -45,19 +45,30 @@ public class CubeController : MonoBehaviour {
 	private RotationQueueItem currentItem;
 	private bool animationRunning = false;
 
+	private bool playedWinSound = false;
+
 	void Start() {
 		rotationQueue = new Queue();
 
-		Randomize(20);
+		Randomize(2);
 	}
 
 	void Update() {
 		if(!animationRunning && rotationQueue.Count > 0) {
 			animationRunning = true;
 
+			// something changed, win sound can be played again
+			playedWinSound = false;
+
 			currentItem = (RotationQueueItem)rotationQueue.Dequeue();
 
 			doRotation(currentItem);
+		}
+
+		if (!playedWinSound && this.IsSolved()) {
+			playedWinSound = true;
+
+			SoundManager.PlayWinSound();
 		}
 	}
 
@@ -343,6 +354,8 @@ public class CubeController : MonoBehaviour {
 	}
 
 	private void animatedRotation(Transform transform, Vector3 center, Vector3 rotationVector, float rotationAngle, Transform[,] cubeTransforms) {
+		SoundManager.PlayRotateSound();
+
 		StartCoroutine (RotationCoroutine(transform, center, rotationVector, rotationAngle, cubeTransforms));
 	}
 	
