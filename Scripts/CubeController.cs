@@ -48,7 +48,7 @@ public class CubeController : MonoBehaviour {
 	void Start() {
 		rotationQueue = new Queue();
 
-		//Randomize(20);
+		Randomize(20);
 	}
 
 	void Update() {
@@ -192,11 +192,11 @@ public class CubeController : MonoBehaviour {
 		rotationQueue.Enqueue(item);
 	}
 
-	private void rotateRowToRight(int y) {
+	private void rotateRowToLeft(int y) {
 		this.rotate(this.getRowIdentifier(y), "y", y, true);
 	}
 
-	private void rotateRowToLeft(int y) {
+	private void rotateRowToRight(int y) {
 		this.rotate(this.getRowIdentifier(y), "y", y, false);
 	}
 
