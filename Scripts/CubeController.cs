@@ -40,25 +40,48 @@ public class CubeController : MonoBehaviour {
 	};
 
 	private GameObject tempParent;
+	private Queue rotationQueue;
 
-	public bool IsSolved {
-		get {
-			for(int x = 0; x < 3; x++) {
-				for(int y = 0; y < 3; y++) {
-					for(int z = 0; z < 3; z++) {
-						if(cubes[x, y, z] != solvedCube[x, y, z]) {
-							return false;
-						}
-					}
-				}
-			}
+	private RotationQueueItem currentItem;
+	private bool animationRunning = false;
 
-			return true;
+	void Start() {
+		rotationQueue = new Queue();
+
+		Randomize(20);
+	}
+
+	void Update() {
+		if(!animationRunning && rotationQueue.Count > 0) {
+			animationRunning = true;
+
+			currentItem = (RotationQueueItem)rotationQueue.Dequeue();
+
+			doRotation(currentItem);
 		}
 	}
 
-	void Start() {
-		//Randomize(10);
+	private void doRotation(RotationQueueItem item) {
+		switch(item.rotation) {
+			case Rotation.ROW_LEFT:
+				this.rotateRowToLeft(item.axisNum);
+				break;
+			case Rotation.ROW_RIGHT:
+				this.rotateRowToRight(item.axisNum);
+				break;
+			case Rotation.COLUMN_UP:
+				this.rotateColumnUp(item.axisNum);
+				break;
+			case Rotation.COLUMN_DOWN:
+				this.rotateColumnDown(item.axisNum);
+				break;
+			case Rotation.LAYER_LEFT:
+				this.rotateLayerToLeft(item.axisNum);
+				break;
+			case Rotation.LAYER_RIGHT:
+				this.rotateLayerToRight(item.axisNum);
+				break;
+		}
 	}
 
 	public void PrintCubeDataStructure() {
@@ -79,6 +102,24 @@ public class CubeController : MonoBehaviour {
 		}
 	}
 
+	public int GetNumberOfQueuedRotations() {
+		return rotationQueue.Count;
+	}
+
+	public bool IsSolved() {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				for(int z = 0; z < 3; z++) {
+					if(cubes[x, y, z] != solvedCube[x, y, z]) {
+						return false;
+					}
+				}
+			}
+		}
+		
+		return true;
+	}
+
 	public void Randomize(int n) {
 		for(int i = 0; i < n; i++) {
 			this.doRandomStep();
@@ -90,26 +131,32 @@ public class CubeController : MonoBehaviour {
 
 		int element = Random.Range(0, 100) > 50 ? 0 : 2;
 
+		RotationQueueItem item = new RotationQueueItem();
+
+		item.axisNum = element;
+
 		switch(rnd) {
-		case 0:
-			rotateRowToRight(element);
-			break;
-		case 1:
-			rotateColumnUp(element);
-			break;
-		case 2:
-			rotateLayerToLeft(element);
-			break;
-		case 3:
-			rotateRowToLeft(element);
-			break;
-		case 4:
-			rotateColumnDown(element);
-			break;
-		case 5:
-			rotateLayerToRight(element);
-			break;
+			case 0:
+				item.rotation = Rotation.ROW_RIGHT;
+				break;
+			case 1:
+				item.rotation = Rotation.COLUMN_UP;
+				break;
+			case 2:
+				item.rotation = Rotation.LAYER_LEFT;
+				break;
+			case 3:
+				item.rotation = Rotation.ROW_LEFT;
+				break;
+			case 4:
+				item.rotation = Rotation.COLUMN_DOWN;
+				break;
+			case 5:
+				item.rotation = Rotation.LAYER_RIGHT;
+				break;
 		}
+
+		rotationQueue.Enqueue(item);
 	}
 
 	public void rotateRowToRight(int y) {
@@ -141,6 +188,9 @@ public class CubeController : MonoBehaviour {
 		if(axisValue == 1) {
 			return;
 		}
+
+		// set animation running
+		this.animationRunning = true;
 		
 		string[,] row = (string[,])rowIdentifier.Clone();
 		
@@ -218,10 +268,8 @@ public class CubeController : MonoBehaviour {
 		// find center
 		Vector3 center = this.findChild(face, tempParent.transform).renderer.bounds.center;
 		
-		tempParent.transform.RotateAround(center, rotationVector, rotationAngle);
-		
-		// put cubes back to good old object
-		this.setCubeTransformParent(cubeTransforms, this.transform);
+		//tempParent.transform.RotateAround(center, rotationVector, rotationAngle);
+		this.animatedRotation(tempParent.transform, center, rotationVector, rotationAngle, cubeTransforms);
 		
 		// apply changes to data structure
 		if (axis == "x") {
@@ -259,6 +307,38 @@ public class CubeController : MonoBehaviour {
 			row[2, 2] = tempRow[2, 0];
 			row[2, 0] = tempRow[0, 0];
 		}
+	}
+
+	private void animatedRotation(Transform transform, Vector3 center, Vector3 rotationVector, float rotationAngle, Transform[,] cubeTransforms) {
+		StartCoroutine (RotationCoroutine(transform, center, rotationVector, rotationAngle, cubeTransforms));
+	}
+	
+	private IEnumerator RotationCoroutine(Transform transform, Vector3 point, Vector3 axis, float rotateAmount, Transform[,] cubeTransforms) {
+		float rotateTime = 1.0f;
+		
+		float step = 0f;
+		float rate = 1f / rotateTime;
+		float smoothStep = 0f;
+		float lastStep = 0f;
+		
+		while (step < 1f) {
+			step += Time.deltaTime * rate;
+			smoothStep = Mathf.SmoothStep(0f, 1f, step);
+			
+			transform.RotateAround(point, axis, rotateAmount * (smoothStep - lastStep));
+			lastStep = smoothStep;
+			
+			yield return null;
+		}
+		
+		if (step > 1f) {
+			transform.RotateAround(point, axis, rotateAmount * (1f - lastStep));
+		}
+		
+		// put cubes back to good old object
+		this.setCubeTransformParent(cubeTransforms, this.transform);
+		
+		animationRunning = false;
 	}
 
 	private void setCubeTransformParent(Transform[,] transforms, Transform parent) {
@@ -418,3 +498,18 @@ public class CubeController : MonoBehaviour {
 		return null;
 	}
 }
+
+enum Rotation {
+	ROW_LEFT,
+	ROW_RIGHT,
+	COLUMN_UP,
+	COLUMN_DOWN,
+	LAYER_LEFT,
+	LAYER_RIGHT
+}
+
+struct RotationQueueItem {
+	public int axisNum;
+	public Rotation rotation;
+}
+

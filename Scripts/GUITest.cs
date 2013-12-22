@@ -16,11 +16,13 @@ public class GUITest : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		if(controller.IsSolved) {
+		if(controller.IsSolved()) {
 			GUI.Label(new Rect(Screen.width/2 - 50, 20, 100, 25), "Cube is solved!");
 		}
 
 		GUI.Label(new Rect (Screen.width - 180, Screen.height - 50, 180, 25), "Early development prototype");
+		GUI.Label(new Rect (Screen.width - 180, Screen.height - 70, 180, 25),
+		          "Rotation Queue: " + controller.GetNumberOfQueuedRotations());
 
 		// actions box
 		GUI.Box(new Rect(10,10,200,100), "Actions.");
@@ -54,7 +56,7 @@ public class GUITest : MonoBehaviour {
 
 		if((Application.platform == RuntimePlatform.WindowsEditor ||
 		   Application.platform == RuntimePlatform.OSXEditor) &&
-		   GUI.Button (new Rect (10, Screen.height - 50, 100, 25), "Print Datastructure")) {
+		   GUI.Button (new Rect (10, Screen.height - 50, 100, 25), "Print")) {
 			controller.PrintCubeDataStructure();
 		}
 
