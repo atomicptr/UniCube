@@ -29,29 +29,29 @@ public class GUITest : MonoBehaviour {
 
 		// row controls
 		if(row != -1 && GUI.Button(new Rect(20,40,180,20), "Row >>")) {
-			controller.rotateRowToRight(row);
+			controller.enqueueRotateRowToRight(row);
 		}
 
 		if(row != -1 && GUI.Button(new Rect(20,70,180,20), "Row <<")) {
-			controller.rotateRowToLeft(row);
+			controller.enqueueRotateRowToLeft(row);
 		}
 
 		// column controls
 		if(column != -1 && GUI.Button(new Rect(20,40,180,20), "Column ^")) {
-			controller.rotateColumnUp(column);
+			controller.enqueueRotateColumnUp(column);
 		}
 
 		if(column != -1 && GUI.Button(new Rect(20,70,180,20), "Column v")) {
-			controller.rotateColumnDown(column);
+			controller.enqueueRotateColumnDown(column);
 		}
 
 		// layer contorls
 		if(layer != -1 && GUI.Button(new Rect(20,40,180,20), "Layer >>")) {
-			controller.rotateLayerToRight(layer);
+			controller.enqueueRotateLayerToRight(layer);
 		}
 
 		if(layer != -1 && GUI.Button(new Rect(20,70,180,20), "Layer <<")) {
-			controller.rotateLayerToLeft(layer);
+			controller.enqueueRotateLayerToLeft(layer);
 		}
 
 		if((Application.platform == RuntimePlatform.WindowsEditor ||
@@ -68,23 +68,16 @@ public class GUITest : MonoBehaviour {
 				column = -1;
 				layer = -1;
 
-				controller.deselectColumn(0);
-				controller.deselectLayer(0);
-				controller.deselectRow(0);
-
-				controller.deselectColumn(2);
-				controller.deselectLayer(2);
-				controller.deselectRow(2);
-
+				controller.deselectEverything();
 				controller.selectRow(0);
 				row = 0;
 			} else if(row == 0) {
-				controller.deselectRow(0);
+				controller.deselectEverything();
 				controller.selectRow(2);
 
 				row = 2;
 			} else if(row == 2) {
-				controller.deselectRow(2);
+				controller.deselectEverything();
 				controller.selectRow(0);
 
 				row = 0;

@@ -48,7 +48,7 @@ public class CubeController : MonoBehaviour {
 	void Start() {
 		rotationQueue = new Queue();
 
-		Randomize(20);
+		//Randomize(20);
 	}
 
 	void Update() {
@@ -122,11 +122,11 @@ public class CubeController : MonoBehaviour {
 
 	public void Randomize(int n) {
 		for(int i = 0; i < n; i++) {
-			this.doRandomStep();
+			this.enqueueRandomAction();
 		}
 	}
 
-	private void doRandomStep() {
+	private void enqueueRandomAction() {
 		int rnd = Random.Range(0, 6);
 
 		int element = Random.Range(0, 100) > 50 ? 0 : 2;
@@ -159,27 +159,60 @@ public class CubeController : MonoBehaviour {
 		rotationQueue.Enqueue(item);
 	}
 
-	public void rotateRowToRight(int y) {
+	public void enqueueRotateRowToLeft(int y) {
+		enqueueItem(y, Rotation.ROW_LEFT);
+	}
+
+	public void enqueueRotateRowToRight(int y) {
+		enqueueItem(y, Rotation.ROW_RIGHT);
+	}
+
+	public void enqueueRotateColumnUp(int x) {
+		enqueueItem(x, Rotation.COLUMN_UP);
+	}
+
+	public void enqueueRotateColumnDown(int x) {
+		enqueueItem(x, Rotation.COLUMN_DOWN);
+	}
+
+	public void enqueueRotateLayerToLeft(int z) {
+		enqueueItem(z, Rotation.LAYER_LEFT);
+	}
+
+	public void enqueueRotateLayerToRight(int z) {
+		enqueueItem(z, Rotation.LAYER_RIGHT);
+	}
+
+	private void enqueueItem(int axisNum, Rotation rotation) {
+		RotationQueueItem item = new RotationQueueItem();
+		
+		item.axisNum = axisNum;
+		item.rotation = rotation;
+		
+		rotationQueue.Enqueue(item);
+	}
+
+	private void rotateRowToRight(int y) {
 		this.rotate(this.getRowIdentifier(y), "y", y, true);
 	}
 
-	public void rotateRowToLeft(int y) {
+	private void rotateRowToLeft(int y) {
 		this.rotate(this.getRowIdentifier(y), "y", y, false);
 	}
 
-	public void rotateColumnUp(int x) {
+	private void rotateColumnUp(int x) {
 		this.rotate(this.getColumnIdentifier(x), "x", x, true);
 	}
 
-	public void rotateColumnDown(int x) {
+	private void rotateColumnDown(int x) {
 		this.rotate(this.getColumnIdentifier(x), "x", x, false);
 	}
 
-	public void rotateLayerToLeft(int z) {
+	private void rotateLayerToLeft(int z) {
 		this.rotate(this.getLayerIdentifier(z), "z", z, true);
 	}
 
-	public void rotateLayerToRight(int z) {
+	private void rotateLayerToRight(int z) {
 		this.rotate(this.getLayerIdentifier(z), "z", z, false);
 	}
 
@@ -243,7 +276,7 @@ public class CubeController : MonoBehaviour {
 		string face = "???";
 		Vector3 rotationVector = Vector3.zero;
 
-		float rotationAngle = 0f;
+		float rotationAngle = rotatePositive ? -90f : 90f;;
 
 		if (axis == "x") {
 			face = "left";
@@ -373,6 +406,16 @@ public class CubeController : MonoBehaviour {
 		setLayerAsSelected(z, false);
 	}
 
+	public void deselectEverything() {
+		for (int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				for(int z = 0; z < 3; z++) {
+					deselectCube(x, y, z);
+				}
+			}
+		}
+	}
+
 	private void setRowAsSelected(int y, bool selected) {
 		for(int x = 0; x < 3; x++) {
 			for(int z = 0; z < 3; z++) {
@@ -406,6 +449,10 @@ public class CubeController : MonoBehaviour {
 	}
 
 	private void setCubeAsSelected(int x, int y, int z, bool selected) {
+		if (animationRunning) {
+			return;
+		}
+
 		PlanesCube cube = getCube(x, y, z);
 		
 		cube.SetHighlighted(selected);
@@ -481,7 +528,6 @@ public class CubeController : MonoBehaviour {
 		}
 	}
 
-	// TODO: use hashmap instead
 	private Transform findChild(string name) {
 		return this.findChild(name, this.transform);
 	}
