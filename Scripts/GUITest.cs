@@ -20,6 +20,8 @@ public class GUITest : MonoBehaviour {
 			GUI.Label(new Rect(Screen.width/2 - 50, 20, 100, 25), "Cube is solved!");
 		}
 
+		GUI.Label(new Rect (Screen.width - 180, Screen.height - 50, 180, 25), "Early development prototype");
+
 		// actions box
 		GUI.Box(new Rect(10,10,200,100), "Actions.");
 
