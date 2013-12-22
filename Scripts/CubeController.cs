@@ -53,7 +53,7 @@ public class CubeController : MonoBehaviour {
 		Randomize(2);
 	}
 
-	void Update() {
+	void FixedUpdate() {
 		if(!animationRunning && rotationQueue.Count > 0) {
 			animationRunning = true;
 
@@ -132,6 +132,8 @@ public class CubeController : MonoBehaviour {
 	}
 
 	public void Randomize(int n) {
+		this.deselectEverything();
+
 		for(int i = 0; i < n; i++) {
 			this.enqueueRandomAction();
 		}

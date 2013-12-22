@@ -56,8 +56,12 @@ public class GUITest : MonoBehaviour {
 
 		if((Application.platform == RuntimePlatform.WindowsEditor ||
 		   Application.platform == RuntimePlatform.OSXEditor) &&
-		   GUI.Button (new Rect (10, Screen.height - 50, 100, 25), "Print")) {
+		   GUI.Button (new Rect (10, Screen.height - 60, 100, 25), "Print")) {
 			controller.PrintCubeDataStructure();
+		}
+
+		if (GUI.Button (new Rect (10, Screen.height - 30, 100, 25), "Randomize")) {
+			controller.Randomize(20);
 		}
 
 		// controls box
