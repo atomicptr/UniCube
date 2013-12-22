@@ -185,21 +185,27 @@ public class CubeController : MonoBehaviour {
 		row[2, 0] = tempRow[2, 2];
 		
 		// rotate real cubes
-
 		string face = "???";
+		Vector3 rotationVector = Vector3.zero;
 
 		if (axis == "x") {
 			face = "left";
+
+			rotationVector = Vector3.left;
 		} else if (axis == "y") {
 			face = "top";
+
+			rotationVector = Vector3.up;
 		} else if (axis == "z") {
 			face = "front";
+
+			rotationVector = Vector3.back;
 		}
 
 		// find center
 		Vector3 center = this.findChild(face, tempParent.transform).renderer.bounds.center;
 		
-		tempParent.transform.RotateAround(center, Vector3.up, 90f);
+		tempParent.transform.RotateAround(center, rotationVector, 90f);
 		
 		// put cubes back to good old object
 		this.setCubeTransformParent(cubeTransforms, this.transform);
@@ -277,21 +283,27 @@ public class CubeController : MonoBehaviour {
 		row[2, 0] = tempRow[0, 0];
 		
 		// rotate real cubes
-		
 		string face = "???";
+		Vector3 rotationVector = Vector3.zero;
 		
 		if (axis == "x") {
 			face = "left";
+			
+			rotationVector = Vector3.left;
 		} else if (axis == "y") {
 			face = "top";
+			
+			rotationVector = Vector3.up;
 		} else if (axis == "z") {
 			face = "front";
+			
+			rotationVector = Vector3.back;
 		}
 		
 		// find center
 		Vector3 center = this.findChild(face, tempParent.transform).renderer.bounds.center;
 		
-		tempParent.transform.RotateAround(center, Vector3.up, -90f);
+		tempParent.transform.RotateAround(center, rotationVector, -90f);
 		
 		// put cubes back to good old object
 		this.setCubeTransformParent(cubeTransforms, this.transform);
