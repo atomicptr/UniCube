@@ -59,14 +59,7 @@ public class CubeController : MonoBehaviour {
 
 	void Start() {
 		// TODO: fix this bug (column up 0 and layer left 0)
-		//rotateRowToRight(0);
-		//rotateRowToLeft(2);
-
-		rotateColumnUp(0);
-		//rotateColumnDown(2);
-
-		rotateLayerToLeft(0);
-		//rotateLayerToRight(2);
+		//rotateColumnUp(0);
 
 		//Randomize(10);
 	}
