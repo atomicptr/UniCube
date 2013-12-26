@@ -64,6 +64,10 @@ public class PlanesCube : MonoBehaviour {
 		this.isHighlighted = highlighted;
 	}
 
+	public bool IsSelected() {
+		return this.isHighlighted;
+	}
+
 	public void ToggleHighlight() {
 		isHighlighted = !isHighlighted;
 

@@ -39,18 +39,50 @@ public class CubeController : MonoBehaviour {
 		}
 	};
 
+	private bool[,,] cachedSelections = new bool[,,] {
+		{
+			{false, false, false},
+			{false, false, false},
+			{false, false, false}
+		},
+		{
+			{false, false, false},
+			{false, false, false},
+			{false, false, false}
+		},
+		{
+			{false, false, false},
+			{false, false, false},
+			{false, false, false}
+		}
+	};
+
 	private GameObject tempParent;
 	private Queue rotationQueue;
 
 	private RotationQueueItem currentItem;
 	private bool animationRunning = false;
 
-	private bool playedWinSound = false;
+	private bool playedWinSound = true;
+
+	private static CubeController _instance;
+	public static CubeController Instance {
+		get {
+			return _instance;
+		}
+	}
+
+	public bool IsAnimationRunning {
+		get {
+			return animationRunning;
+		}
+	}
 
 	void Start() {
+		CubeController._instance = this;
 		rotationQueue = new Queue();
 
-		Randomize(2);
+		//Randomize(2);
 	}
 
 	void FixedUpdate() {
@@ -65,7 +97,7 @@ public class CubeController : MonoBehaviour {
 			doRotation(currentItem);
 		}
 
-		if (!playedWinSound && this.IsSolved()) {
+		if (!playedWinSound && this.IsSolved() && rotationQueue.Count == 0) {
 			playedWinSound = true;
 
 			SoundManager.PlayWinSound();
@@ -197,12 +229,38 @@ public class CubeController : MonoBehaviour {
 	}
 
 	private void enqueueItem(int axisNum, Rotation rotation) {
+		this.backupSelections();
+
 		RotationQueueItem item = new RotationQueueItem();
 		
 		item.axisNum = axisNum;
 		item.rotation = rotation;
 		
 		rotationQueue.Enqueue(item);
+	}
+
+	private void backupSelections() {
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				for(int z = 0; z < 3; z++) {
+					cachedSelections[x, y, z] = getCube(x, y, z).IsSelected();
+				}
+			}
+		}
+
+		this.deselectEverything();
+	}
+
+	private void restoreSelections() {
+		this.deselectEverything();
+
+		for(int x = 0; x < 3; x++) {
+			for(int y = 0; y < 3; y++) {
+				for(int z = 0; z < 3; z++) {
+					this.setCubeAsSelected(x, y, z, cachedSelections[x, y, z]);
+				}
+			}
+		}
 	}
 
 	private void rotateRowToLeft(int y) {
@@ -387,6 +445,11 @@ public class CubeController : MonoBehaviour {
 		this.setCubeTransformParent(cubeTransforms, this.transform);
 		
 		animationRunning = false;
+
+		// if there are no more rotations enqueued, restore selections
+		if(rotationQueue.Count == 0) {
+			this.restoreSelections();
+		}
 	}
 
 	private void setCubeTransformParent(Transform[,] transforms, Transform parent) {
@@ -455,7 +518,7 @@ public class CubeController : MonoBehaviour {
 		}
 	}
 
-	private void selectCube(int x, int y, int z) {
+	public void selectCube(int x, int y, int z) {
 		setCubeAsSelected(x, y, z, true);
 	}
 
@@ -479,7 +542,7 @@ public class CubeController : MonoBehaviour {
 
 	private PlanesCube getCube(int x, int y, int z) {
 		Transform cubeTransform = getCubeTransform(x, y, z);
-		
+
 		return (PlanesCube)cubeTransform.GetComponent("PlanesCube");
 	}
 

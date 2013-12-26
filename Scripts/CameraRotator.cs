@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using InControl;
 
 public class CameraRotator : MonoBehaviour {
 
@@ -17,10 +18,8 @@ public class CameraRotator : MonoBehaviour {
 		float mouseDeltaX = 0f;
 		float mouseDeltaY = 0f;
 
-		if (Input.GetMouseButton (1)) {
-			mouseDeltaX = Input.GetAxis("Mouse X") * speed;
-			mouseDeltaY = Input.GetAxis("Mouse Y") * speed;
-		}
+		mouseDeltaX = InputManager.ActiveDevice.RightStickX.Value * speed;
+		mouseDeltaY = InputManager.ActiveDevice.RightStickY.Value * speed;
 
 		Quaternion rotation = Quaternion.Euler(mouseDeltaY, mouseDeltaX, 0);
 		transform.rotation = rotation;
