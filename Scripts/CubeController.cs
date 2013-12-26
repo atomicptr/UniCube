@@ -60,8 +60,12 @@ public class CubeController : MonoBehaviour {
 	private GameObject tempParent;
 	private Queue rotationQueue;
 
+	private const float animationSpeed = 0.8f;
+	private const float randomizeSpeedFactor = 5f;
+
 	private RotationQueueItem currentItem;
 	private bool animationRunning = false;
+	private bool randomizing = false;
 
 	private bool playedWinSound = true;
 
@@ -82,7 +86,7 @@ public class CubeController : MonoBehaviour {
 		CubeController._instance = this;
 		rotationQueue = new Queue();
 
-		//Randomize(2);
+		Randomize(20);
 	}
 
 	void FixedUpdate() {
@@ -164,6 +168,7 @@ public class CubeController : MonoBehaviour {
 	}
 
 	public void Randomize(int n) {
+		this.randomizing = true;
 		this.deselectEverything();
 
 		for(int i = 0; i < n; i++) {
@@ -420,7 +425,7 @@ public class CubeController : MonoBehaviour {
 	}
 	
 	private IEnumerator RotationCoroutine(Transform transform, Vector3 point, Vector3 axis, float rotateAmount, Transform[,] cubeTransforms) {
-		float rotateTime = 1.0f;
+		float rotateTime = randomizing ? animationSpeed / randomizeSpeedFactor : animationSpeed;
 		
 		float step = 0f;
 		float rate = 1f / rotateTime;
@@ -449,6 +454,11 @@ public class CubeController : MonoBehaviour {
 		// if there are no more rotations enqueued, restore selections
 		if(rotationQueue.Count == 0) {
 			this.restoreSelections();
+		}
+
+		// done randomizing
+		if(randomizing && rotationQueue.Count == 0) {
+			randomizing = false;
 		}
 	}
 

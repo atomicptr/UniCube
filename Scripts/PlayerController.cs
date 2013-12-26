@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
 
 	private int x = 0;
 	private int y = 0;
+	private int z = 0;
 
 	private int leftRightIndex = 0;
 	private int upDownIndex = 0;
@@ -29,6 +30,18 @@ public class PlayerController : MonoBehaviour {
 		new Vector2(2, 2),
 		new Vector2(0, 2),
 	};
+
+	private CubeSides current = CubeSides.RED_SIDE;
+
+	private PlayerInputDevice playerInputDevice;
+	public PlayerInputDevice InputDevice {
+		get { return this.playerInputDevice; }
+	}
+
+	private static PlayerController _instance;
+	public static PlayerController Instance {
+		get { return _instance; }
+	}
 
 	private bool leftWasPressed {
 		get {
@@ -55,6 +68,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Start() {
+		PlayerController._instance = this;
+
 		updateInputDevice();
 	}
 
@@ -76,28 +91,42 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.Action2.WasPressed) {
-			CubeController.Instance.enqueueRotateRowToRight(y);
+			this.rotateRow(false);
 		} else if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.Action3.WasPressed) {
-			CubeController.Instance.enqueueRotateRowToLeft(y);
+			this.rotateRow(true);
 		} else if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.Action1.WasPressed) {
-			CubeController.Instance.enqueueRotateColumnDown(x);
+			this.rotateColumn(false);
 		} else if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.Action4.WasPressed) {
-			CubeController.Instance.enqueueRotateColumnUp(x);
+			this.rotateColumn(true);
 		} else if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.LeftBumper.WasPressed) {
-			CubeController.Instance.enqueueRotateLayerToLeft(0);
+			this.rotateLayer(true);
 		} else if(somethingSelected && !CubeController.Instance.IsAnimationRunning && device.RightBumper.WasPressed) {
-			CubeController.Instance.enqueueRotateLayerToRight(0);
+			this.rotateLayer(false);
 		}
 
 		if (device.LeftTrigger.WasPressed) {
 			moveCameraToLeft();
+
+			moveCursorLeft();
 		} else if (device.RightTrigger.WasPressed) {
 			moveCameraToRight();
+
+			moveCursorRight();
 		}
 	}
 
 	private void updateInputDevice() {
 		this.device = InputManager.ActiveDevice;
+
+		if (this.device.Name.ToLower ().Contains ("keyboard")) {
+			this.playerInputDevice = PlayerInputDevice.KEYBOARD;
+		} else if (this.device.Name.ToLower ().Contains ("xbox 360")) {
+			this.playerInputDevice = PlayerInputDevice.XBOX360_GAMEPAD;
+		} else if (this.device.Name.ToLower ().Contains ("ps3")) {
+			this.playerInputDevice = PlayerInputDevice.PS3_GAMEPAD;
+		} else if (this.device.Name.ToLower ().Contains ("ouya")) {
+			this.playerInputDevice = PlayerInputDevice.OUYA_GAMEPAD;
+		}
 	}
 
 	private void moveCursorLeft() {
@@ -149,18 +178,186 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	private void moveCameraToRight() {
-		Camera.mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, -90f);
+		current = current.right();
+
+		Camera.main.transform.RotateAround(Vector3.zero, Vector3.up, -90f);
 	}
 
 	private void moveCameraToLeft() {
-		Camera.mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, 90f);
+		current = current.left();
+
+		Camera.main.transform.RotateAround(Vector3.zero, Vector3.up, 90f);
 	}
 
 	private void select(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
+		this.z = z;
 
 		CubeController.Instance.deselectEverything();
 		CubeController.Instance.selectCube(x, y, z);
 	}
+
+	private void rotateRow(bool left) {
+		int id = y;
+
+		if(current.isBaseSide()) {
+			if(left) {
+				CubeController.Instance.enqueueRotateRowToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateRowToRight(id);
+			}
+		} else {
+			id = z;
+
+			if(left) {
+				CubeController.Instance.enqueueRotateLayerToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateLayerToRight(id);
+			}
+		}
+	}
+
+	private void rotateColumn(bool up) {
+		int id = x;
+
+		if (current == CubeSides.RED_SIDE || current == CubeSides.WHITE_SIDE || current == CubeSides.YELLOW_SIDE) {
+			if(up) {
+				CubeController.Instance.enqueueRotateColumnUp(id);
+			} else {
+				CubeController.Instance.enqueueRotateColumnDown(id);
+			}
+		} else if(current == CubeSides.BLUE_SIDE) {
+			id = z;
+
+			if(up) {
+				CubeController.Instance.enqueueRotateLayerToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateLayerToRight(id);
+			}
+		} else if(current == CubeSides.ORANGE_SIDE) {
+			if(!up) {
+				CubeController.Instance.enqueueRotateColumnUp(id);
+			} else {
+				CubeController.Instance.enqueueRotateColumnDown(id);
+			}
+		} else if(current == CubeSides.GREEN_SIDE) {
+			id = z;
+			
+			if(!up) {
+				CubeController.Instance.enqueueRotateLayerToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateLayerToRight(id);
+			}
+		}
+	}
+
+	private void rotateLayer(bool left) {
+		int id = z;
+
+		if (current == CubeSides.RED_SIDE) {
+			if(left) {
+				CubeController.Instance.enqueueRotateLayerToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateLayerToRight(id);
+			}
+		} else if(current == CubeSides.BLUE_SIDE) {
+			id = z == 2 ? 0 : 2;
+
+			if(!left) {
+				CubeController.Instance.enqueueRotateColumnUp(id);
+			} else {
+				CubeController.Instance.enqueueRotateColumnDown(id);
+			}
+		} else if(current == CubeSides.ORANGE_SIDE) {
+			if(!left) {
+				CubeController.Instance.enqueueRotateLayerToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateLayerToRight(id);
+			}
+		} else if(current == CubeSides.GREEN_SIDE) {
+			id = z == 2 ? 0 : 2;
+			
+			if(left) {
+				CubeController.Instance.enqueueRotateColumnUp(id);
+			} else {
+				CubeController.Instance.enqueueRotateColumnDown(id);
+			}
+		} else if(current == CubeSides.WHITE_SIDE || current == CubeSides.YELLOW_SIDE) {
+			id = y;
+
+			if(left) {
+				CubeController.Instance.enqueueRotateRowToLeft(id);
+			} else {
+				CubeController.Instance.enqueueRotateRowToRight(id);
+			}
+		}
+	}
+}
+
+class CubeSides {
+	public static CubeSides RED_SIDE = new CubeSides(0);
+	public static CubeSides BLUE_SIDE = new CubeSides(1);
+	public static CubeSides ORANGE_SIDE = new CubeSides(2);
+	public static CubeSides GREEN_SIDE = new CubeSides(3);
+
+	// if white is in front, red should always be at bottom
+	public static CubeSides WHITE_SIDE = new CubeSides(4);
+
+	// if yellow is in front, red should always be at top
+	public static CubeSides YELLOW_SIDE = new CubeSides(5);
+
+	public int ID;
+
+	private CubeSides(int id) {
+		this.ID = id;
+	}
+
+	public CubeSides right() {
+		if (this == RED_SIDE) {
+			return BLUE_SIDE;
+		} else if (this == BLUE_SIDE) {
+			return ORANGE_SIDE;
+		} else if (this == ORANGE_SIDE) {
+			return GREEN_SIDE;
+		} else if (this == GREEN_SIDE) {
+			return RED_SIDE;
+		} else {
+			return null;
+		}
+	}
+
+	public CubeSides left() {
+		if (this == RED_SIDE) {
+			return GREEN_SIDE;
+		} else if (this == GREEN_SIDE) {
+			return ORANGE_SIDE;
+		} else if (this == ORANGE_SIDE) {
+			return BLUE_SIDE;
+		} else if (this == BLUE_SIDE) {
+			return RED_SIDE;
+		} else {
+			return null;
+		}
+	}
+
+	public bool isBaseSide() {
+		return this == RED_SIDE || this == GREEN_SIDE || this == ORANGE_SIDE || this == BLUE_SIDE;
+	}
+
+	public static bool operator ==(CubeSides first, CubeSides second) {
+		return first.ID == second.ID;
+	}
+
+	public static bool operator !=(CubeSides first, CubeSides second) {
+		return first.ID != second.ID;
+	}
+}
+
+public enum PlayerInputDevice {
+	KEYBOARD,
+	XBOX360_GAMEPAD,
+	PS3_GAMEPAD,
+	OUYA_GAMEPAD,
+	UNKOWN
 }
