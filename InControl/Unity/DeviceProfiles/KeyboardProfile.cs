@@ -58,6 +58,18 @@ namespace InControl
 					Handle = "E Key",
 					Target = InputControlType.RightBumper,
 					Source = "e"
+				},
+				new InputControlButtonMapping()
+				{
+					Handle = "Button 1 Trigger",
+					Target = InputControlType.LeftTrigger,
+					Source = "1"
+				},
+				new InputControlButtonMapping()
+				{
+					Handle = "Button 2 Trigger",
+					Target = InputControlType.RightTrigger,
+					Source = "2"
 				}
 			};
 
