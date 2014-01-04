@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class CubeController : MonoBehaviour {
 
@@ -58,7 +59,7 @@ public class CubeController : MonoBehaviour {
 	};
 
 	private GameObject tempParent;
-	private Queue rotationQueue;
+	private Queue<RotationQueueItem> rotationQueue;
 
 	private const float animationSpeed = 0.8f;
 	private const float randomizeSpeedFactor = 5f;
@@ -84,7 +85,7 @@ public class CubeController : MonoBehaviour {
 
 	void Start() {
 		CubeController._instance = this;
-		rotationQueue = new Queue();
+		rotationQueue = new Queue<RotationQueueItem>();
 
 		Randomize(20);
 	}
@@ -96,7 +97,7 @@ public class CubeController : MonoBehaviour {
 			// something changed, win sound can be played again
 			playedWinSound = false;
 
-			currentItem = (RotationQueueItem)rotationQueue.Dequeue();
+			currentItem = rotationQueue.Dequeue();
 
 			doRotation(currentItem);
 		}
