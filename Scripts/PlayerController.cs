@@ -1,4 +1,20 @@
-﻿using UnityEngine;
+﻿// Copyright (C) 2014 Christopher Kaster
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+// is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+using UnityEngine;
 using System.Collections;
 using InControl;
 
@@ -48,19 +64,19 @@ public class PlayerController : MonoBehaviour {
 			return device.DPadLeft.WasPressed || (device.LeftStickX.WasPressed && device.LeftStickX.Value < 0f);
 		}
 	}
-	
+
 	private bool rightWasPressed {
 		get {
 			return device.DPadRight.WasPressed || (device.LeftStickX.WasPressed && device.LeftStickX.Value > 0f);
 		}
 	}
-	
+
 	private bool upWasPressed {
 		get {
 			return device.DPadUp.WasPressed || (device.LeftStickY.WasPressed && device.LeftStickY.Value > 0f);
 		}
 	}
-	
+
 	private bool downWasPressed {
 		get {
 			return device.DPadDown.WasPressed || (device.LeftStickY.WasPressed && device.LeftStickY.Value < 0f);
@@ -135,9 +151,9 @@ public class PlayerController : MonoBehaviour {
 		} else {
 			leftRightIndex--;
 		}
-		
+
 		Vector2 left = leftRightMovement[leftRightIndex];
-		
+
 		select((int)left.x, y, (int)left.y);
 	}
 
@@ -152,16 +168,16 @@ public class PlayerController : MonoBehaviour {
 
 		select((int)right.x, y, (int)right.y);
 	}
-	
+
 	private void moveCursorUp() {
 		if (upDownIndex - 1 < 0) {
 			upDownIndex = upDownMovement.Length - 1;
 		} else {
 			upDownIndex--;
 		}
-		
+
 		Vector2 up = upDownMovement[upDownIndex];
-		
+
 		select(x, (int)up.x, (int)up.y);
 	}
 
@@ -171,9 +187,9 @@ public class PlayerController : MonoBehaviour {
 		} else {
 			upDownIndex++;
 		}
-		
+
 		Vector2 down = upDownMovement[upDownIndex];
-		
+
 		select(x, (int)down.x, (int)down.y);
 	}
 
@@ -243,7 +259,7 @@ public class PlayerController : MonoBehaviour {
 			}
 		} else if(current == CubeSides.GREEN_SIDE) {
 			id = z;
-			
+
 			if(!up) {
 				CubeController.Instance.enqueueRotateLayerToLeft(id);
 			} else {
@@ -277,7 +293,7 @@ public class PlayerController : MonoBehaviour {
 			}
 		} else if(current == CubeSides.GREEN_SIDE) {
 			id = z == 2 ? 0 : 2;
-			
+
 			if(left) {
 				CubeController.Instance.enqueueRotateColumnUp(id);
 			} else {

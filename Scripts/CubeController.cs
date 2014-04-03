@@ -1,4 +1,20 @@
-﻿using UnityEngine;
+﻿// Copyright (C) 2014 Christopher Kaster
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+// is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -164,7 +180,7 @@ public class CubeController : MonoBehaviour {
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -238,10 +254,10 @@ public class CubeController : MonoBehaviour {
 		this.backupSelections();
 
 		RotationQueueItem item = new RotationQueueItem();
-		
+
 		item.axisNum = axisNum;
 		item.rotation = rotation;
-		
+
 		rotationQueue.Enqueue(item);
 	}
 
@@ -301,54 +317,54 @@ public class CubeController : MonoBehaviour {
 
 		// set animation running
 		this.animationRunning = true;
-		
+
 		string[,] row = (string[,])rowIdentifier.Clone();
-		
+
 		Transform[,] cubeTransforms = new Transform[3, 3];
-		
+
 		string[,] tempRow = (string[,])rowIdentifier.Clone ();
-		
+
 		// set temp parent to center object
 		tempParent = this.findChild(row[1, 1]).gameObject;
-		
+
 		// get transforms
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < 3; j++) {
 				int x = 0;
 				int y = 0;
 				int z = 0;
-				
+
 				if(axis == "x") {
 					x = axisValue;
 					y = i;
 					z = j;
-					
+
 					cubeTransforms[y, z] = this.getCubeTransform(x, y, z);
-					
+
 					cubeTransforms[y, z].parent = tempParent.transform;
 				} else if(axis == "y") {
 					x = i;
 					y = axisValue;
 					z = j;
-					
+
 					cubeTransforms[x, z] = this.getCubeTransform(x, y, z);
-					
+
 					cubeTransforms[x, z].parent = tempParent.transform;
 				} else if(axis == "z") {
 					x = i;
 					y = j;
 					z = axisValue;
-					
+
 					cubeTransforms[x, y] = this.getCubeTransform(x, y, z);
-					
+
 					cubeTransforms[x, y].parent = tempParent.transform;
 				}
 			}
 		}
-		
+
 		// rotate datastructure
 		this.performDataStructureRotation(row, tempRow, rotatePositive);
-		
+
 		// rotate real cubes
 		string face = "???";
 		Vector3 rotationVector = Vector3.zero;
@@ -357,30 +373,30 @@ public class CubeController : MonoBehaviour {
 
 		if (axis == "x") {
 			face = "left";
-			
+
 			rotationVector = Vector3.left;
 
 			rotationAngle = rotatePositive ? -90f : 90f;
 		} else if (axis == "y") {
 			face = "top";
-			
+
 			rotationVector = Vector3.up;
 
 			rotationAngle = rotatePositive ? 90f : -90f;
 		} else if (axis == "z") {
 			face = "front";
-			
+
 			rotationVector = Vector3.back;
 
 			rotationAngle = rotatePositive ? -90f : 90f;
 		}
-		
+
 		// find center
 		Vector3 center = this.findChild(face, tempParent.transform).renderer.bounds.center;
-		
+
 		//tempParent.transform.RotateAround(center, rotationVector, rotationAngle);
 		this.animatedRotation(tempParent.transform, center, rotationVector, rotationAngle, cubeTransforms);
-		
+
 		// apply changes to data structure
 		if (axis == "x") {
 			this.setColumnIdentifier(axisValue, row);
@@ -398,7 +414,7 @@ public class CubeController : MonoBehaviour {
 			row[1, 2] = tempRow[0, 1];
 			row[2, 1] = tempRow[1, 2];
 			row[1, 0] = tempRow[2, 1];
-			
+
 			// rotate diagonals
 			row[0, 0] = tempRow[2, 0];
 			row[0, 2] = tempRow[0, 0];
@@ -410,7 +426,7 @@ public class CubeController : MonoBehaviour {
 			row[1, 2] = tempRow[2, 1];
 			row[2, 1] = tempRow[1, 0];
 			row[1, 0] = tempRow[0, 1];
-			
+
 			// rotate diagonals
 			row[0, 0] = tempRow[0, 2];
 			row[0, 2] = tempRow[2, 2];
@@ -424,32 +440,32 @@ public class CubeController : MonoBehaviour {
 
 		StartCoroutine (RotationCoroutine(transform, center, rotationVector, rotationAngle, cubeTransforms));
 	}
-	
+
 	private IEnumerator RotationCoroutine(Transform transform, Vector3 point, Vector3 axis, float rotateAmount, Transform[,] cubeTransforms) {
 		float rotateTime = randomizing ? animationSpeed / randomizeSpeedFactor : animationSpeed;
-		
+
 		float step = 0f;
 		float rate = 1f / rotateTime;
 		float smoothStep = 0f;
 		float lastStep = 0f;
-		
+
 		while (step < 1f) {
 			step += Time.deltaTime * rate;
 			smoothStep = Mathf.SmoothStep(0f, 1f, step);
-			
+
 			transform.RotateAround(point, axis, rotateAmount * (smoothStep - lastStep));
 			lastStep = smoothStep;
-			
+
 			yield return null;
 		}
-		
+
 		if (step > 1f) {
 			transform.RotateAround(point, axis, rotateAmount * (1f - lastStep));
 		}
-		
+
 		// put cubes back to good old object
 		this.setCubeTransformParent(cubeTransforms, this.transform);
-		
+
 		animationRunning = false;
 
 		// if there are no more rotations enqueued, restore selections
@@ -543,7 +559,7 @@ public class CubeController : MonoBehaviour {
 		}
 
 		PlanesCube cube = getCube(x, y, z);
-		
+
 		cube.SetHighlighted(selected);
 	}
 
@@ -579,16 +595,16 @@ public class CubeController : MonoBehaviour {
 
 	private string[,] getColumnIdentifier(int x) {
 		string[,] row = new string[3, 3];
-		
+
 		for(int y = 0; y < 3; y++) {
 			for(int z = 0; z < 3; z++) {
 				row[y, z] = cubes[x, y, z];
 			}
 		}
-		
+
 		return row;
 	}
-	
+
 	private void setColumnIdentifier(int x, string[,] row) {
 		for(int y = 0; y < 3; y++) {
 			for(int z = 0; z < 3; z++) {
@@ -599,16 +615,16 @@ public class CubeController : MonoBehaviour {
 
 	private string[,] getLayerIdentifier(int z) {
 		string[,] row = new string[3, 3];
-		
+
 		for(int x = 0; x < 3; x++) {
 			for(int y = 0; y < 3; y++) {
 				row[x, y] = cubes[x, y, z];
 			}
 		}
-		
+
 		return row;
 	}
-	
+
 	private void setLayerIdentifier(int z, string[,] row) {
 		for(int x = 0; x < 3; x++) {
 			for(int y = 0; y < 3; y++) {
@@ -624,12 +640,12 @@ public class CubeController : MonoBehaviour {
 	private Transform findChild(string name, Transform from) {
 		for(int i = 0; i < from.childCount; i++) {
 			Transform child = from.GetChild(i);
-			
+
 			if(child.name == name) {
 				return child;
 			}
 		}
-		
+
 		return null;
 	}
 }
